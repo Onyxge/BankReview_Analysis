@@ -1,0 +1,13 @@
+google-play-scraper
+pandas
+numpy
+nltk
+notebook
+textblob
+matplotlib
+python-dotenv
+tqdm
+torch
+transformers
+scipy
+seaborn

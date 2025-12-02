@@ -4,3 +4,8 @@ __pycache__/
 *.DS_Store
 .env
 DATA/
+.pyc
+__pycache__
+
+
+notebook/data

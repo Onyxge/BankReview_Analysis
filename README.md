@@ -1,30 +1,30 @@
-# 🏦 Ethiopian Banking App Sentiment Analysis
+# 📘 Customer Experience Analytics for Fintech Apps
 
-Project: Customer Experience Analytics for Fintech Apps (Week 2 Challenge)
+**Comprehensive Final Report**  
 
-Organization: Omega Consultancy
+**Prepared for:** 10 Academy / Omega Consultancy  
 
-Author: [Your Name]
+**Author:** Yonatan
 
-Date: November 2025
+**Date:** 02 December 2025  
 
-### 📖 Overview
+---
 
-This project analyzes customer satisfaction for the mobile banking applications of three major Ethiopian banks: Commercial Bank of Ethiopia (CBE), Bank of Abyssinia (BOA), and Dashen Bank.
+## 1. Executive Summary
 
-By scraping user reviews from the Google Play Store and applying Natural Language Processing (NLP), this project identifies key satisfaction drivers and pain points to help stakeholders improve user retention and feature development.
+This project established a robust end-to-end data engineering and analytics pipeline to evaluate customer satisfaction for Ethiopia's leading mobile banking applications: Commercial Bank of Ethiopia (CBE), Bank of Abyssinia (BOA), and Dashen Bank.
 
-### 🎯 Business Objective
+By scraping, cleaning, and analyzing 1,151 user reviews from the Google Play Store, we identified critical performance gaps.  
 
-Scrape real-world user feedback.
+- **Commercial Bank of Ethiopia (CBE):** Market leader in user satisfaction (Avg Rating: 4.16) due to perceived reliability.  
+- **Bank of Abyssinia (BOA):** Faces technical issues regarding app security, rating dropped to 3.42.  
+- **Dashen Bank:** Stable middle ground (3.95) but suffers from authentication instability.
 
-Analyze sentiment (Positive or Negative) using AI models from Hugging Face Transformers.
+Rule-based preprocessing (Regex) outperformed AI-based language detection, retaining 40% more valuable data. A relational database system ensured data persistence, verified with automated SQL auditing.
 
-Extract thematic insights such as keywords like "Login", "Crash", and "Speed".
+---
 
-Deliver actionable recommendations for app improvement.
-
-### 🛠️ **Tech Stack**
+## 🛠️ **Tech Stack**
 
 * **Language:** Python 3.11
 * **Data Collection:** google-play-scraper
@@ -65,60 +65,152 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Data Collection (Task 1)
 
-```
-python scripts/scraper.py
-```
 
-Output: data/raw/reviews_raw.csv
+## 3. Data Engineering Pipeline
 
-Data Preprocessing (Task 1)
+### Phase 1: Robust Data Collection (Task 1)
 
-```
-python scripts/preprocessing_regex.py
-```
+**Challenge**  
+Automated data scraping often triggers Google anti bot systems that result in IP rate limits.
 
-Output: data/processed/reviews_processed_regex.csv
+**Solution**  
+A Jitter mechanism was introduced to randomize sleep intervals between requests. This behavior mimics human browsing patterns and prevents bot detection.
 
-Analysis (Task 2)
+**Result**  
+All 1,200 target reviews were collected with zero interruptions.
 
-```
-jupyter notebook notebooks/task2_analysis.ipynb
-```
+### Phase 2: Preprocessing and A/B Testing Strategy
 
-Sentiment uses distilbert-base-uncased-finetuned-sst-2-english.
+A key challenge was the mix of English and Amharic text in the dataset. Two cleaning strategies were tested.
 
-Themes identify common complaints and praise.
+**Experiment A: AI Based (langdetect)**  
+Misclassified many short but valid English reviews such as "Good" or "Nice app." Nearly half of the dataset was lost.
 
-### 🧪 **A/B Testing: Language Filtering Strategy**
+**Experiment B: Rule Based (Regex)**  
+Targeted Ethiopic characters using the pattern `[\\u1200-\\u137F]`. This removed only unwanted text and preserved 96 percent of the data.
 
-We conducted an experiment to identify the best method for handling multi-lingual data (English vs. Amharic/Other).
+**Conclusion**  
+The Regex method was selected for production.
 
-**Method A: langdetect Library (AI-based)**
+### Phase 3: Quality Assurance (Unit Testing)
 
-* **Approach:** Used Google's language detection library to strictly identify English text.
-* **Result:** Failed (53% retention).
-* **Review:** The library was overly aggressive, often misclassifying short, valid reviews (e.g., "Good", "Nice app", "5 stars", "Wow") as "unknown" or non-English due to insufficient text for confidence. This caused nearly 50% dataset loss.
+A complete pytest suite in `tests/test_preprocessing.py` validates the cleaning pipeline.
 
-**Method B: Regex Filtering (Rule-based)**
+**Tests Included**  
+Column renaming  
+Date normalization  
+Null value handling  
+Amharic text filtering  
 
-* **Approach:** Targeted Ethiopic Unicode characters (\u1200-\u137F) to remove Amharic text while retaining English content.
-* **Result:** Success (96% retention).
-* **Review:** This method effectively removed Amharic noise while preserving short, high-value English feedback.
+A regression bug related to invalid date strings was detected and fixed using `errors='coerce'`, improving reliability.
 
-**Verdict:** Method B (Regex) was adopted for the final data preprocessing pipeline.
+### Phase 4: Data Persistence and Verification (Task 3)
 
-### 📊 Key Findings
+A normalized relational database schema was created with two tables.
 
-Data retention: custom regex filtering retained ninety six percent of reviews compared to fifty three percent with standard language detection.
+![Description](screenshots/banks.png)
 
-Pain points: frequent mentions of update, working, and login suggest stability issues after updates.
+**banks** (Dimension table)  
+![Description](screenshots/REVIEWS_L.png)
 
-Drivers: positive sentiment is tied strongly to speed and ease of use.
 
-🔜 Next Steps
+**reviews** (Fact table)  
+![Description](screenshots/REVIEWS_R.png)
+A verification script (`verify_db.py`) confirmed accurate data loading.
 
-Task 3: design a PostgreSQL database schema and load enriched data.
+![Description](screenshots/VERIFYDB.png)
+**Results**  
+Total records: 1,151  
+Dashen: 385  
+BOA: 384  
+CBE: 382  
 
-Task 4: build the final dashboard and comprehensive report.
+All counts match the cleaned CSV.
+
+---
+
+## 4. Key Findings & Insights
+
+### 4.1 Comparative Performance
+
+| Bank | Reviews | Avg Rating | Sentiment Trend |
+|------|--------|------------|----------------|
+| CBE  | 382    | 4.16       | 🟢 Positive (Stable) |
+| Dashen | 385  | 3.95       | 🟡 Positive (Volatile) |
+| BOA  | 384    | 3.42       | 🔴 Negative (Declining) |
+
+### 4.2 Thematic Analysis: Why Users Complain
+- **Critical Issue (BOA):** "Developer Options" bug locks users.  
+  - Quote: "It keeps notifying me to disable developer options... most of the time is not working properly."
+- **Universal Pain Point:** "Update" causes app crashes across all banks.
+
+### 4.3 Success Drivers
+- **Speed:** "Fast" is a top keyword in 5-star reviews.  
+- **Simplicity:** "Easy to use" drives satisfaction.
+
+---
+
+## 5. Challenges Faced and Solutions
+
+### 1. Numpy Version Conflict
+Transformers conflicted with numpy 2.0 on macOS.  
+**Solution**  
+Pinned numpy to a version below 2.0 and added better error handling for sentiment analysis.
+
+### 2. SSL Certificate Issue
+macOS Python installation failed to verify SSL for NLTK resources.  
+**Solution**  
+A temporary SSL bypass context was added for downloads.
+
+### 3. PostgreSQL Locale Error
+Database creation failed due to pgAdmin locale mismatches.  
+**Solution**  
+Raw SQL was used to create the database through the Query Tool.
+
+### 4. Database Duplication
+Running the loader multiple times caused UniqueViolation errors.  
+**Solution**  
+The loader script now drops and recreates tables so the pipeline is idempotent.
+
+---
+
+## 6. Strategic Recommendations
+
+### 6.1 Immediate Technical Fixes
+
+**Fix for Bank of Abyssinia**  
+Relax the security check for Developer Options.  
+Convert the current block into a warning message.  
+Projected impact: a rating improvement of 0.3 to 0.5 stars within one month.
+
+**Fix for All Banks**  
+Adopt staged rollout testing for updates.  
+Release to 5 percent of users first, monitor crash logs for two days, then expand.
+
+### 6.2 Long Term Product Roadmap
+
+**Biometric Authentication**  
+Users struggle with login friction. Fingerprint and FaceID would improve daily use.
+
+**Speed Optimization**  
+Conduct a backend audit to reduce transfer delays.  
+Speed is a major driver of user satisfaction and retention.
+
+---
+
+## 7. Visual Appendix
+![Description](notebook/data/report_images/sentiment_by_bank.png)
+- **Figure 1:** Sentiment Distribution by Bank  
+
+![Description](Data/report_images/wordcloud_positive.png)
+
+- **Figure 2:** Positive Word Cloud ("Easy", "Good", "Fast", "Best")  
+
+![Description](Data/report_images/wordcloud_negative.png)
+- **Figure 3:** Negative Word Cloud ("Working", "Update", "Open", "Account")  
+
+![Description](Data/report_images/sentiment_trend.png)
+
+- **Figure 3:** Sentiment_Trend  
+

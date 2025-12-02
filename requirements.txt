@@ -1,3 +1,4 @@
+sqlalchemy
 google-play-scraper
 pandas
 numpy
@@ -12,3 +13,4 @@ transformers
 scipy
 seaborn
 langdetect
+sqlalchemy

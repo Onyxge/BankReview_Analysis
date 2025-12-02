@@ -200,17 +200,17 @@ Speed is a major driver of user satisfaction and retention.
 ---
 
 ## 7. Visual Appendix
-![Description](notebook/data/report_images/sentiment_by_bank.png)
+![Description](screenshots/sentiment_by_bank.png)
 - **Figure 1:** Sentiment Distribution by Bank  
 
-![Description](Data/report_images/wordcloud_positive.png)
+![Description](screenshots/wordcloud_positive.png)
 
 - **Figure 2:** Positive Word Cloud ("Easy", "Good", "Fast", "Best")  
 
-![Description](Data/report_images/wordcloud_negative.png)
+![Description](screenshots/wordcloud_negative.png)
 - **Figure 3:** Negative Word Cloud ("Working", "Update", "Open", "Account")  
 
-![Description](Data/report_images/sentiment_trend.png)
+![Description](screenshots/sentiment_trend.png)
 
 - **Figure 3:** Sentiment_Trend  
 
